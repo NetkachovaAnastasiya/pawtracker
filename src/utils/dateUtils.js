@@ -1,10 +1,7 @@
 // EVIDENCE: JavaScript - Function basics (Trainee)
-// Helper utilities for date manipulation without external libraries
 
 /**
  * Format date to display format (e.g., "Mar 15, 2025")
- * @param {string} dateString - Date string to format
- * @returns {string} - Formatted date string
  */
 export const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -14,9 +11,6 @@ export const formatDate = (dateString) => {
   
   /**
    * Add days to a date
-   * @param {Date} date - The date to add days to
-   * @param {number} days - Number of days to add
-   * @returns {Date} - New date after adding days
    */
   export const addDays = (date, days) => {
     const result = new Date(date);
@@ -26,8 +20,6 @@ export const formatDate = (dateString) => {
   
   /**
    * Format date to YYYY-MM-DD for inputs
-   * @param {Date} date - The date to format
-   * @returns {string} - Date in YYYY-MM-DD format
    */
   export const formatDateForInput = (date) => {
     const d = new Date(date);
