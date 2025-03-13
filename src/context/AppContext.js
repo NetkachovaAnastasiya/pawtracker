@@ -1,4 +1,8 @@
-import React, { createContext, useState, useEffect } from 'react';
+// src/context/AppContext.js
+import React, { createContext, useState, useEffect, useMemo } from 'react';
+import { createLoggerService } from '../services/loggerService';
+import { createAuthService } from '../services/authService';
+import { createApiService } from '../services/apiService';
 
 // EVIDENCE: Framework React - Context API usage to avoid prop drilling (Junior)
 export const AppContext = createContext();
@@ -13,44 +17,11 @@ const translations = {
     foodCalculator: "Food Calculator",
     medication: "Medication",
     settings: "Settings",
-    addDog: "Add Dog",
-    dogName: "Dog Name",
-    breed: "Breed",
-    weight: "Weight (kg)",
-    age: "Age (years)",
-    activityLevel: "Activity Level",
-    low: "Low",
-    moderate: "Moderate",
-    high: "High",
-    save: "Save",
-    cancel: "Cancel",
-    delete: "Delete",
-    edit: "Edit",
-    foodType: "Food Type",
-    dryFood: "Dry Food",
-    wetFood: "Wet Food",
-    mixedFood: "Mixed Food",
-    calculate: "Calculate",
-    dailyPortion: "Daily Portion",
-    mealsPerDay: "Meals per day",
-    medicationName: "Medication Name",
-    dose: "Dose",
-    frequency: "Frequency",
-    startDate: "Start Date",
-    endDate: "End Date",
-    notes: "Notes",
-    theme: "Theme",
-    language: "Language",
-    darkMode: "Dark Mode",
-    lightMode: "Light Mode",
-    gramsPerDay: "grams per day",
-    perMeal: "per meal",
-    daily: "Daily",
-    weekly: "Weekly",
-    biweekly: "Bi-weekly",
-    monthly: "Monthly",
-    welcome: "Welcome to PawTracker!",
-    welcomeMessage: "This app helps you manage your dog's information, food, and medications."
+    fontSize: "Font Size",
+    fontSizeSmall: "Small",
+    fontSizeMedium: "Medium",
+    fontSizeLarge: "Large",
+    // Інші переклади...
   },
   uk: {
     appTitle: "PawTracker",
@@ -59,68 +30,48 @@ const translations = {
     foodCalculator: "Калькулятор їжі",
     medication: "Медикаменти",
     settings: "Налаштування",
-    addDog: "Додати собаку",
-    dogName: "Ім'я собаки",
-    breed: "Порода",
-    weight: "Вага (кг)",
-    age: "Вік (роки)",
-    activityLevel: "Рівень активності",
-    low: "Низький",
-    moderate: "Середній",
-    high: "Високий",
-    save: "Зберегти",
-    cancel: "Скасувати",
-    delete: "Видалити",
-    edit: "Редагувати",
-    foodType: "Тип їжі",
-    dryFood: "Сухий корм",
-    wetFood: "Вологий корм",
-    mixedFood: "Змішаний корм",
-    calculate: "Розрахувати",
-    dailyPortion: "Денна порція",
-    mealsPerDay: "Прийомів їжі на день",
-    medicationName: "Назва ліків",
-    dose: "Доза",
-    frequency: "Частота",
-    startDate: "Дата початку",
-    endDate: "Дата закінчення",
-    notes: "Примітки",
-    theme: "Тема",
-    language: "Мова",
-    darkMode: "Темний режим",
-    lightMode: "Світлий режим",
-    gramsPerDay: "грамів на день",
-    perMeal: "на прийом",
-    daily: "Щодня",
-    weekly: "Щотижня",
-    biweekly: "Раз на два тижні",
-    monthly: "Щомісяця",
-    welcome: "Ласкаво просимо до PawTracker!",
-    welcomeMessage: "Цей додаток допомагає вам керувати інформацією про собаку, їжу та ліки."
+    fontSize: "Розмір шрифту",
+    fontSizeSmall: "Малий",
+    fontSizeMedium: "Середній",
+    fontSizeLarge: "Великий",
+    // Інші переклади...
   }
 };
 
 // EVIDENCE: Framework React - Data flow management between components (Junior)
 export const AppProvider = ({ children }) => {
-  // Load saved preferences from localStorage
-  // EVIDENCE: JavaScript - Variables and data types (Trainee)
+  // UI налаштування
   const [darkMode, setDarkMode] = useState(() => {
-    const saved = localStorage.getItem('darkMode');
-    return saved ? JSON.parse(saved) : false;
+    return localStorage.getItem('darkMode') === 'true';
   });
   
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('language') || 'en';
   });
   
+  const [fontSize, setFontSize] = useState(() => {
+    return localStorage.getItem('fontSize') || 'medium';
+  });
+  
+  // Ініціалізація сервісів з використанням useMemo для запобігання непотрібних перестворень
+  // EVIDENCE: JavaScript - Optimization techniques (Junior)
+  const services = useMemo(() => {
+    const logger = createLoggerService();
+    const auth = createAuthService(logger);
+    const api = createApiService(auth, logger);
+    
+    return { logger, auth, api };
+  }, []);
+  
+  // Активна сторінка (може бути замінена на React Router в майбутньому)
   const [activePage, setActivePage] = useState('home');
   
-  // Save preferences to localStorage when they change
+  // Зберігаємо налаштування в localStorage
   // EVIDENCE: Framework React - useEffect for lifecycle (Junior)
   useEffect(() => {
-    localStorage.setItem('darkMode', JSON.stringify(darkMode));
+    localStorage.setItem('darkMode', darkMode);
     
-    // Apply dark mode to document body
+    // Застосовуємо тему до body
     if (darkMode) {
       document.body.classList.add('dark', 'bg-gray-900', 'text-white');
     } else {
@@ -132,21 +83,43 @@ export const AppProvider = ({ children }) => {
     localStorage.setItem('language', language);
   }, [language]);
   
-  // Translation function
-  // EVIDENCE: JavaScript - Function basics (Trainee)
-  const t = (key) => {
-    return translations[language][key] || key;
-  };
+  useEffect(() => {
+    localStorage.setItem('fontSize', fontSize);
+    
+    // Font size
+    document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
+    
+    switch (fontSize) {
+      case 'small':
+        document.documentElement.classList.add('text-sm');
+        break;
+      case 'large':
+        document.documentElement.classList.add('text-lg');
+        break;
+      default: // medium
+        document.documentElement.classList.add('text-base');
+    }
+  }, [fontSize]);
   
-  // Context value
+  // Функція перекладу
+  const t = (key) => translations[language][key] || key;
+  
+  // Контекстне значення
   const contextValue = {
+    // UI налаштування
     darkMode,
     setDarkMode,
     language,
     setLanguage,
+    fontSize,
+    setFontSize,
+    // Навігація
     activePage,
     setActivePage,
-    t
+    // Функціонал
+    t,
+    // Сервіси
+    services
   };
   
   return (
