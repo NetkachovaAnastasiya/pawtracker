@@ -1,0 +1,18 @@
+{
+    "medicationName": "Medication Name",
+    "dose": "Dose",
+    "frequency": "Frequency",
+    "frequencies": {
+      "daily": "Daily",
+      "weekly": "Weekly",
+      "biweekly": "Bi-weekly",
+      "monthly": "Monthly"
+    },
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "nextDose": "Next Dose",
+    "notes": "Notes",
+    "addMedication": "Add Medication",
+    "editMedication": "Edit Medication",
+    "noMedications": "No medications added yet. Click \"Add Medication\" to get started."
+  }

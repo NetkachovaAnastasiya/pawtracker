@@ -1,76 +1,35 @@
-// src/context/AppContext.js
 import React, { createContext, useState, useEffect, useMemo } from 'react';
-import { createLoggerService } from '../services/loggerService';
-import { createAuthService } from '../services/authService';
-import { createApiService } from '../services/apiService';
+import { useTranslation } from 'react-i18next';
 
 // EVIDENCE: Framework React - Context API usage to avoid prop drilling (Junior)
 export const AppContext = createContext();
 
-// Translation dictionary
-// EVIDENCE: Generative AI - AI-assisted content generation for translations
-const translations = {
-  en: {
-    appTitle: "PawTracker",
-    home: "Home",
-    dogProfiles: "Dog Profiles",
-    foodCalculator: "Food Calculator",
-    medication: "Medication",
-    settings: "Settings",
-    fontSize: "Font Size",
-    fontSizeSmall: "Small",
-    fontSizeMedium: "Medium",
-    fontSizeLarge: "Large",
-    // Інші переклади...
-  },
-  uk: {
-    appTitle: "PawTracker",
-    home: "Головна",
-    dogProfiles: "Профілі собак",
-    foodCalculator: "Калькулятор їжі",
-    medication: "Медикаменти",
-    settings: "Налаштування",
-    fontSize: "Розмір шрифту",
-    fontSizeSmall: "Малий",
-    fontSizeMedium: "Середній",
-    fontSizeLarge: "Великий",
-    // Інші переклади...
-  }
-};
-
-// EVIDENCE: Framework React - Data flow management between components 
+// EVIDENCE: Framework React - Data flow management between components (Junior)
 export const AppProvider = ({ children }) => {
+  // Get i18next translation function and current language
+  // EVIDENCE: Libraries React - Integration with third-party libraries (Junior)
+  const { i18n } = useTranslation();
+  
+  // UI settings
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });
   
-  const [language, setLanguage] = useState(() => {
-    return localStorage.getItem('language') || 'en';
-  });
-  
+  // Get the language from i18next or localStorage
   const [fontSize, setFontSize] = useState(() => {
     return localStorage.getItem('fontSize') || 'medium';
   });
   
-  // Ініціалізація сервісів з використанням useMemo для запобігання непотрібних перестворень
-  // EVIDENCE: JavaScript - Optimization techniques (Junior)
-  const services = useMemo(() => {
-    const logger = createLoggerService();
-    const auth = createAuthService(logger);
-    const api = createApiService(auth, logger);
-    
-    return { logger, auth, api };
-  }, []);
-  
-  // Активна сторінка (може бути замінена на React Router в майбутньому)
+ 
+  // Active page (could be replaced with React Router in the future)
   const [activePage, setActivePage] = useState('home');
   
-  // Зберігаємо налаштування в localStorage
-  // EVIDENCE: Framework React - useEffect for lifecycle (Junior)
+  // Save settings in localStorage
+  // EVIDENCE: Framework React - useEffect for lifecycle management (Junior)
   useEffect(() => {
     localStorage.setItem('darkMode', darkMode);
     
-    // Застосовуємо тему до body
+    // Apply theme to body
     if (darkMode) {
       document.body.classList.add('dark', 'bg-gray-900', 'text-white');
     } else {
@@ -79,13 +38,9 @@ export const AppProvider = ({ children }) => {
   }, [darkMode]);
   
   useEffect(() => {
-    localStorage.setItem('language', language);
-  }, [language]);
-  
-  useEffect(() => {
     localStorage.setItem('fontSize', fontSize);
     
-    // Font size
+    // Apply font size to document
     document.documentElement.classList.remove('text-sm', 'text-base', 'text-lg');
     
     switch (fontSize) {
@@ -100,25 +55,26 @@ export const AppProvider = ({ children }) => {
     }
   }, [fontSize]);
   
-  // Функція перекладу
-  const t = (key) => translations[language][key] || key;
+  // Language change handler - now using i18next
+  // EVIDENCE: Framework React - Event handling (Junior)
+  const changeLanguage = (language) => {
+    i18n.changeLanguage(language);
+    localStorage.setItem('language', language); 
+  };
   
-  // Контекстне значення
+  // Context value
   const contextValue = {
-    // UI налаштування
+    // UI settings
     darkMode,
     setDarkMode,
-    language,
-    setLanguage,
     fontSize,
     setFontSize,
-    // Навігація
+    // Language functions
+    language: i18n.language,
+    changeLanguage,
+    // Navigation
     activePage,
-    setActivePage,
-    // Функціонал
-    t,
-    // Сервіси
-    services
+    setActivePage
   };
   
   return (

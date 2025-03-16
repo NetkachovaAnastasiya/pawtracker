@@ -1,23 +1,34 @@
-// src/components/pages/DogProfiles.js
 import React, { useState, useContext, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../context/AppContext';
 
+// EVIDENCE: Framework React - Component composition (Trainee)
 function DogProfiles() {
-  const { t, darkMode } = useContext(AppContext);
+  // Use i18next for translations
+  // EVIDENCE: Libraries React - Integration with third-party libraries (Junior)
+  const { t } = useTranslation(['common', 'dogs']);
   
-  // State для списку собак
+  // Get UI settings from Context
+  const { darkMode } = useContext(AppContext);
+  
+  // Use local state with localStorage instead of Redux
+  // EVIDENCE: JavaScript - Variables and data types (Trainee)
   const [dogs, setDogs] = useState(() => {
+    // Initialize from localStorage
     const saved = localStorage.getItem('dogs');
     return saved ? JSON.parse(saved) : [];
   });
   
-  // State для форми
+  // Track loading and error states locally
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  
+  // Local state for the form
   const [showForm, setShowForm] = useState(false);
   const [editingDog, setEditingDog] = useState(null);
   
-  // Шаблон порожнього собаки
+  // Empty dog template
   const emptyDog = {
-    id: '',
     name: '',
     breed: '',
     weight: '',
@@ -25,9 +36,21 @@ function DogProfiles() {
     activityLevel: 'moderate'
   };
   
+  // Form state
   const [formData, setFormData] = useState(emptyDog);
   
-  // Обробка змін полів форми
+  // Save to localStorage whenever dogs change
+  // EVIDENCE: Framework React - useEffect for side effects (Junior)
+  useEffect(() => {
+    try {
+      localStorage.setItem('dogs', JSON.stringify(dogs));
+    } catch (error) {
+      console.error('Error saving dogs to localStorage:', error);
+    }
+  }, [dogs]);
+  
+  // Handle form changes
+  // EVIDENCE: JavaScript - Event handling (Junior)
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({
@@ -36,233 +59,225 @@ function DogProfiles() {
     }));
   };
   
-  // Збереження собаки
+  // Save dog
+  // EVIDENCE: Framework React - Child-to-parent communication (Junior)
   const saveDog = () => {
+    // Validate required fields
     if (!formData.name || !formData.breed || !formData.weight) {
-      alert('Будь ласка, заповніть усі обов\'язкові поля');
+      alert(t('dogs:requiredFields'));
       return;
     }
     
-    let updatedDogs;
-    
     if (editingDog) {
-      // Оновлення існуючого собаки
-      updatedDogs = dogs.map(dog => 
-        dog.id === editingDog.id ? { ...formData, id: dog.id } : dog
+      // Update existing dog directly in state
+      // EVIDENCE: JavaScript - Array methods and operations (Junior)
+      setDogs(currentDogs => 
+        currentDogs.map(dog => 
+          dog.id === editingDog.id ? { ...formData, id: dog.id } : dog
+        )
       );
     } else {
-      // Add new dog
+      // Add new dog directly to state
       const newDog = {
         ...formData,
-        id: Date.now().toString() // unique id
+        id: Date.now().toString() // Simple unique ID generation
       };
-      updatedDogs = [...dogs, newDog];
+      setDogs(currentDogs => [...currentDogs, newDog]);
     }
     
-    setDogs(updatedDogs);
-    localStorage.setItem('dogs', JSON.stringify(updatedDogs));
     resetForm();
   };
   
-  // Dog delete
-  const deleteDog = (id) => {
-    if (window.confirm('Ви впевнені, що хочете видалити цей профіль собаки?')) {
-      const updatedDogs = dogs.filter(dog => dog.id !== id);
-      setDogs(updatedDogs);
-      localStorage.setItem('dogs', JSON.stringify(updatedDogs));
+  // Delete dog
+  // EVIDENCE: JavaScript - Error handling (Junior)
+  const deleteDogHandler = (id) => {
+    try {
+      if (window.confirm(t('confirmDelete'))) {
+        // Filter out the deleted dog
+        setDogs(currentDogs => currentDogs.filter(dog => dog.id !== id));
+      }
+    } catch (error) {
+      console.error('Error deleting dog:', error);
+      setError('Failed to delete dog');
     }
   };
   
-  // Dog edit
-  const editDog = (dog) => {
+  // Edit dog
+  const editDogHandler = (dog) => {
     setFormData({ ...dog });
     setEditingDog(dog);
     setShowForm(true);
   };
   
- //Form reset
+  // Reset form
   const resetForm = () => {
     setFormData(emptyDog);
     setEditingDog(null);
     setShowForm(false);
   };
   
+  // Display loading state
+  if (isLoading) {
+    return <div className="text-center p-4">Loading...</div>;
+  }
+  
+  // Display error
+  if (error) {
+    return <div className="text-center p-4 text-red-500">Error: {error}</div>;
+  }
+  
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <h2 className="text-2xl font-bold">Профілі собак</h2>
+    <div>
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold">{t('navigation.dogProfiles')}</h2>
         <button
           onClick={() => setShowForm(!showForm)}
-          className={`px-4 py-2 rounded-md ${
-            darkMode 
-              ? 'bg-blue-600 hover:bg-blue-700' 
-              : 'bg-blue-500 hover:bg-blue-600'
-          } text-white font-medium transition-colors duration-200`}
+          className={`px-4 py-2 rounded ${
+            darkMode ? 'bg-blue-600 hover:bg-blue-700' : 'bg-blue-500 hover:bg-blue-600'
+          } text-white`}
         >
-          {showForm ? 'Скасувати' : 'Додати собаку'}
+          {showForm ? t('actions.cancel') : t('dogs:addDog')}
         </button>
       </div>
       
-      {/* Форма додавання/редагування */}
+      {/* Add/Edit form */}
+      {/* EVIDENCE: Framework React - Conditional rendering (Junior) */}
       {showForm && (
-        <div className={`rounded-lg shadow-md p-6 ${
-          darkMode ? 'bg-gray-800' : 'bg-white'
-        } mb-6`}>
-          <h3 className="text-xl font-semibold mb-4">
-            {editingDog ? 'Редагувати собаку' : 'Додати нового собаку'}
-          </h3>
+        <div className={`mb-6 p-4 rounded-lg shadow-md ${darkMode ? 'bg-gray-800' : 'bg-white'}`}>
+          <h3 className="text-xl mb-4">{editingDog ? t('dogs:editDog') : t('dogs:addDog')}</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block mb-1 font-medium">Ім'я собаки*</label>
+              <label className="block mb-1">{t('dogs:dogName')}*</label>
               <input
                 type="text"
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none`}
-                required
+                }`}
               />
             </div>
             
             <div>
-              <label className="block mb-1 font-medium">Порода*</label>
+              <label className="block mb-1">{t('dogs:breed')}*</label>
               <input
                 type="text"
                 name="breed"
                 value={formData.breed}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none`}
-                required
+                }`}
               />
             </div>
             
             <div>
-              <label className="block mb-1 font-medium">Вага (кг)*</label>
+              <label className="block mb-1">{t('dogs:weight')}*</label>
               <input
                 type="number"
                 name="weight"
                 value={formData.weight}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none`}
+                }`}
                 min="0.1"
                 step="0.1"
-                required
               />
             </div>
             
             <div>
-              <label className="block mb-1 font-medium">Вік (роки)</label>
+              <label className="block mb-1">{t('dogs:age')}</label>
               <input
                 type="number"
                 name="age"
                 value={formData.age}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none`}
+                }`}
                 min="0.1"
                 step="0.1"
               />
             </div>
             
             <div>
-              <label className="block mb-1 font-medium">Рівень активності</label>
+              <label className="block mb-1">{t('dogs:activityLevel')}</label>
               <select
                 name="activityLevel"
                 value={formData.activityLevel}
                 onChange={handleInputChange}
-                className={`w-full p-2 border rounded-md ${
+                className={`w-full p-2 border rounded ${
                   darkMode ? 'bg-gray-700 border-gray-600' : 'bg-white border-gray-300'
-                } focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none`}
+                }`}
               >
-                <option value="low">Низький</option>
-                <option value="moderate">Середній</option>
-                <option value="high">Високий</option>
+                <option value="low">{t('dogs:activityOptions.low')}</option>
+                <option value="moderate">{t('dogs:activityOptions.moderate')}</option>
+                <option value="high">{t('dogs:activityOptions.high')}</option>
               </select>
             </div>
           </div>
           
-          <div className="mt-6 flex justify-end">
+          <div className="mt-4 flex justify-end">
             <button
               onClick={resetForm}
-              className={`mr-2 px-4 py-2 rounded-md ${
+              className={`mr-2 px-4 py-2 rounded ${
                 darkMode ? 'bg-gray-700 hover:bg-gray-600' : 'bg-gray-200 hover:bg-gray-300'
-              } font-medium transition-colors duration-200`}
+              }`}
             >
-              Скасувати
+              {t('actions.cancel')}
             </button>
             <button
               onClick={saveDog}
-              className={`px-4 py-2 rounded-md ${
+              className={`px-4 py-2 rounded ${
                 darkMode ? 'bg-green-600 hover:bg-green-700' : 'bg-green-500 hover:bg-green-600'
-              } text-white font-medium transition-colors duration-200`}
+              } text-white`}
             >
-              Зберегти
+              {t('actions.save')}
             </button>
           </div>
         </div>
       )}
       
-      {/* Список собак */}
+      {/* Dogs list */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {dogs.length === 0 ? (
-          <p className={`col-span-full py-8 text-center ${darkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-            Ще не додано жодного собаки. Натисніть "Додати собаку", щоб розпочати.
-          </p>
+          <p>{t('dogs:noDogs')}</p>
         ) : (
+          /* EVIDENCE: Framework React - List rendering with proper keys (Junior) */
           dogs.map(dog => (
             <div
               key={dog.id}
-              className={`rounded-lg shadow-md p-4 ${
-                darkMode ? 'bg-gray-800 hover:bg-gray-750' : 'bg-white hover:bg-gray-50'
-              } transition-colors duration-200`}
+              className={`rounded-lg shadow-md p-4 ${darkMode ? 'bg-gray-800' : 'bg-white'}`}
             >
               <div className="flex justify-between items-start">
                 <h3 className="text-xl font-semibold">{dog.name}</h3>
-                <div className="flex">
+                <div>
                   <button
-                    onClick={() => editDog(dog)}
+                    onClick={() => editDogHandler(dog)}
                     className="text-blue-500 hover:text-blue-700 mr-2"
                   >
-                    Редагувати
+                    {t('actions.edit')}
                   </button>
                   <button
-                    onClick={() => deleteDog(dog.id)}
+                    onClick={() => deleteDogHandler(dog.id)}
                     className="text-red-500 hover:text-red-700"
                   >
-                    Видалити
+                    {t('actions.delete')}
                   </button>
                 </div>
               </div>
               
-              <div className="mt-2 text-sm">
-                <p className="flex justify-between py-1 border-b border-gray-700">
-                  <span className="font-medium">Порода:</span>
-                  <span>{dog.breed}</span>
-                </p>
-                <p className="flex justify-between py-1 border-b border-gray-700">
-                  <span className="font-medium">Вага:</span>
-                  <span>{dog.weight} кг</span>
-                </p>
-                {dog.age && (
-                  <p className="flex justify-between py-1 border-b border-gray-700">
-                    <span className="font-medium">Вік:</span>
-                    <span>{dog.age} років</span>
-                  </p>
-                )}
-                <p className="flex justify-between py-1">
-                  <span className="font-medium">Активність:</span>
-                  <span>
-                    {dog.activityLevel === 'low' ? 'Низька' :
-                     dog.activityLevel === 'high' ? 'Висока' : 'Середня'}
-                  </span>
+              <div className="mt-2">
+                <p><strong>{t('dogs:breed')}:</strong> {dog.breed}</p>
+                <p><strong>{t('dogs:weight')}:</strong> {dog.weight} kg</p>
+                {dog.age && <p><strong>{t('dogs:age')}:</strong> {dog.age} years</p>}
+                <p>
+                  <strong>{t('dogs:activityLevel')}:</strong> {
+                    t(`dogs:activityOptions.${dog.activityLevel}`)
+                  }
                 </p>
               </div>
             </div>

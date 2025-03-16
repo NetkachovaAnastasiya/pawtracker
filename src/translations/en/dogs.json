@@ -1,0 +1,16 @@
+{
+    "dogName": "Dog Name",
+    "breed": "Breed",
+    "weight": "Weight (kg)",
+    "age": "Age (years)",
+    "activityLevel": "Activity Level",
+    "activityOptions": {
+      "low": "Low",
+      "moderate": "Moderate",
+      "high": "High"
+    },
+    "addDog": "Add Dog",
+    "editDog": "Edit Dog",
+    "noDogs": "No dogs added yet. Click \"Add Dog\" to get started.",
+    "requiredFields": "Please fill in all required fields"
+  }

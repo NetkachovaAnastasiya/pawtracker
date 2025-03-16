@@ -1,0 +1,16 @@
+{
+    "theme": "Theme",
+    "darkMode": "Dark Mode",
+    "lightMode": "Light Mode",
+    "language": "Language",
+    "languages": {
+      "en": "English",
+      "uk": "Ukrainian"
+    },
+    "fontSize": "Font Size",
+    "fontSizes": {
+      "small": "Small",
+      "medium": "Medium",
+      "large": "Large"
+    }
+  }
