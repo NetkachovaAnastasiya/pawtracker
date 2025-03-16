@@ -38,9 +38,8 @@ const translations = {
   }
 };
 
-// EVIDENCE: Framework React - Data flow management between components (Junior)
+// EVIDENCE: Framework React - Data flow management between components 
 export const AppProvider = ({ children }) => {
-  // UI налаштування
   const [darkMode, setDarkMode] = useState(() => {
     return localStorage.getItem('darkMode') === 'true';
   });

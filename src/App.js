@@ -30,7 +30,7 @@ function App() {
       : 'Medication tracking functionality coming soon.'
   };
 
-  // Список навігаційних пунктів
+
   // EVIDENCE: JavaScript - Arrays and array operations (Trainee)
   const navItems = [
     { id: 'home', label: texts.home, icon: '🏠' },

@@ -46,7 +46,6 @@ const dogsSlice = createSlice({
     lastUpdated: null
   },
   reducers: {
-    // Додаткові синхронні редюсери, якщо потрібно
   },
   extraReducers: (builder) => {
     builder

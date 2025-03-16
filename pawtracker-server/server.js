@@ -41,7 +41,6 @@ app.post('/api/huggingface-recommendations', async (req, res) => {
     });
     
     // Choose an appropriate model
-    // For better Ukrainian support, you might want to use a multilingual model
     const model = language === 'uk' 
       ? "Helsinki-NLP/opus-mt-en-uk" // Model with Ukrainian language support
       : "google/flan-t5-large";      // General purpose model for English
