@@ -1,15 +1,19 @@
 {
-    "foodType": "Food Type",
-    "foodTypes": {
-      "dry": "Dry Food",
-      "wet": "Wet Food",
-      "mixed": "Mixed Food",
-      "raw": "Raw Diet"
-    },
-    "dailyPortion": "Daily Portion",
-    "mealsPerDay": "Meals per day",
-    "gramsPerDay": "grams per day",
-    "perMeal": "per meal",
-    "selectDog": "Select a dog",
-    "calculationDisclaimer": "This calculation is an estimate and may need adjustment based on your dog's individual needs."
-  }
+  "foodType": "Food Type",
+  "foodTypes": {
+    "dry": "Dry Food",
+    "wet": "Wet Food",
+    "mixed": "Mixed Food",
+    "raw": "Raw Diet"
+  },
+  "dailyPortion": "Daily Portion",
+  "mealsPerDay": "Meals per day",
+  "gramsPerDay": "grams per day",
+  "perMeal": "per meal",
+  "selectDog": "Select a dog",
+  "calculationDisclaimer": "This calculation is an estimate and may need adjustment based on your dog's individual needs.",
+  "recentCalculations": "Recent Calculations",
+  "getAiRecommendations": "Get AI Recommendations",
+  "loadingRecommendations": "Getting Recommendations...",
+  "recommendationsTitle": "AI Care Recommendations"
+}

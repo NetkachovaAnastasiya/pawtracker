@@ -2,12 +2,11 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AppContext } from '../../context/AppContext';
 
-// EVIDENCE: Framework React - Creating maintainable components (Trainee)
-function HomePage({ setActivePage }) {  // Accept setActivePage as a prop
+function HomePage() {
   const { t } = useTranslation('common');
-  const { darkMode } = useContext(AppContext);
+  const { darkMode, setActivePage } = useContext(AppContext);
   
-  // Quick navigation data with translation keys
+  // Navigation card data
   const navCards = [
     { id: 'dogProfiles', key: 'navigation.dogProfiles', descKey: 'home.dogProfilesDescription' },
     { id: 'foodCalculator', key: 'navigation.foodCalculator', descKey: 'home.foodCalculatorDescription' },
@@ -26,7 +25,7 @@ function HomePage({ setActivePage }) {  // Accept setActivePage as a prop
         </p>
       </div>
       
-      {/* Quick navigation cards */}
+      {/* Navigation cards */}
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
         {navCards.map(card => (
           <div 

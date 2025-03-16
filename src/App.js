@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { AppProvider } from './context/AppContext';
+import React, { useContext } from 'react';
+import { AppContext, AppProvider } from './context/AppContext';
+import { DataProvider } from './context/DataContext';
 import Header from './components/Header';
 import Sidebar from './components/Sidebar';
 import HomePage from './components/pages/HomePage';
@@ -9,32 +9,22 @@ import FoodCalculator from './components/pages/FoodCalculator';
 import Medication from './components/pages/Medication';
 import Settings from './components/pages/Settings';
 
-// EVIDENCE: Framework React - Component composition (Trainee)
+// Main component structure
 function AppContent() {
-  const { t } = useTranslation('common');
-  const [activePage, setActivePage] = useState('home');
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  // Use useContext with AppContext, not AppProvider.context
+  const { activePage } = useContext(AppContext);
+  const [menuOpen, setMenuOpen] = React.useState(false);
   
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 dark:text-white">
-      <Header 
-        menuOpen={mobileMenuOpen} 
-        setMenuOpen={setMobileMenuOpen} 
-        activePage={activePage}
-        setActivePage={setActivePage}
-      />
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
+      <Header menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
       
       <div className="flex">
-        <Sidebar 
-          menuOpen={mobileMenuOpen} 
-          activePage={activePage}
-          setActivePage={setActivePage}
-        />
+        <Sidebar menuOpen={menuOpen} />
         
         <main className="flex-grow p-4">
           <div className="container mx-auto">
-            {/* Conditional rendering based on active page */}
-            {activePage === 'home' && <HomePage setActivePage={setActivePage} />}
+            {activePage === 'home' && <HomePage />}
             {activePage === 'dogProfiles' && <DogProfiles />}
             {activePage === 'foodCalculator' && <FoodCalculator />}
             {activePage === 'medication' && <Medication />}
@@ -49,7 +39,9 @@ function AppContent() {
 function App() {
   return (
     <AppProvider>
-      <AppContent />
+      <DataProvider>
+        <AppContent />
+      </DataProvider>
     </AppProvider>
   );
 }
