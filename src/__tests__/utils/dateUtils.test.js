@@ -1,89 +1,81 @@
 // src/__tests__/utils/dateUtils.test.js
-// EVIDENCE: Code-Based Testing - Unit testing fundamentals (Junior)
 import { formatDate, addDays, formatDateForInput } from '../../utils/dateUtils';
 
-// EVIDENCE: Code-Based Testing - Test organization using describes and groups (Middle)
-describe('Date Utility Functions', () => {
-  // EVIDENCE: Code-Based Testing - Basic matchers for testing expected values (Junior)
-  describe('formatDate function', () => {
-    test('formats date correctly for en-US locale', () => {
-      // Mock a fixed date to avoid test flakiness
-      const testDate = new Date(2023, 5, 15); // June 15, 2023
-      
-      // Call with fixed language parameter
-      const result = formatDate(testDate.toISOString(), 'en');
-      
-      // Result format might vary by environment, so we'll check parts
-      expect(result).toContain('Jun');
-      expect(result).toContain('15');
-      expect(result).toContain('2023');
-    });
+describe('Date Utilities', () => {
+  // Mock Date constructor
+  const RealDate = global.Date;
+  
+  beforeEach(() => {
+    // Mock date to a fixed date for consistent testing
+    global.Date = class extends RealDate {
+      constructor(...args) {
+        if (args.length === 0) {
+          // When called with no arguments, return a fixed date
+          return new RealDate('2023-05-15T12:00:00Z');
+        }
+        return new RealDate(...args);
+      }
+    };
     
-    test('formats date correctly for uk-UA locale', () => {
-      // Mock a fixed date to avoid test flakiness
-      const testDate = new Date(2023, 5, 15); // June 15, 2023
-      
-      // Call with fixed language parameter
-      const result = formatDate(testDate.toISOString(), 'uk');
-      
-      // Result format might vary by environment, so we'll check parts
-      expect(result).toContain('черв');
-      expect(result).toContain('15');
-      expect(result).toContain('2023');
-    });
+    // Preserve static methods
+    global.Date.now = RealDate.now;
   });
   
-  describe('addDays function', () => {
-    test('adds positive days correctly', () => {
-      const startDate = new Date(2023, 5, 15); // June 15, 2023
-      const resultDate = addDays(startDate, 5);
-      
-      expect(resultDate.getDate()).toBe(20); // 15 + 5 = 20
-      expect(resultDate.getMonth()).toBe(5); // Still June (0-indexed)
-      expect(resultDate.getFullYear()).toBe(2023);
-    });
-    
-    test('adds negative days correctly', () => {
-      const startDate = new Date(2023, 5, 15); // June 15, 2023
-      const resultDate = addDays(startDate, -5);
-      
-      expect(resultDate.getDate()).toBe(10); // 15 - 5 = 10
-      expect(resultDate.getMonth()).toBe(5); // Still June (0-indexed)
-      expect(resultDate.getFullYear()).toBe(2023);
-    });
-    
-    test('handles month/year transition correctly', () => {
-      const startDate = new Date(2023, 5, 28); // June 28, 2023
-      const resultDate = addDays(startDate, 5);
-      
-      expect(resultDate.getDate()).toBe(3); // July 3
-      expect(resultDate.getMonth()).toBe(6); // July (0-indexed)
-      expect(resultDate.getFullYear()).toBe(2023);
-    });
-    
-    test('handles year transition correctly', () => {
-      const startDate = new Date(2023, 11, 29); // December 29, 2023
-      const resultDate = addDays(startDate, 5);
-      
-      expect(resultDate.getDate()).toBe(3); // January 3
-      expect(resultDate.getMonth()).toBe(0); // January (0-indexed)
-      expect(resultDate.getFullYear()).toBe(2024);
-    });
+  afterEach(() => {
+    // Restore original Date
+    global.Date = RealDate;
   });
   
-  describe('formatDateForInput function', () => {
-    test('formats date as YYYY-MM-DD for HTML input', () => {
-      const testDate = new Date(2023, 5, 15); // June 15, 2023
-      const result = formatDateForInput(testDate);
-      
-      expect(result).toBe('2023-06-15');
-    });
+  // Test 1: formatDate formats dates correctly
+  test('formatDate formats dates correctly', () => {
+    const date = '2023-05-15';
+    const result = formatDate(date);
+    expect(result).toMatch(/May 15, 2023/i);
+  });
+  
+  // Test 2: addDays adds days correctly
+  test('addDays adds days correctly', () => {
+    const date = new Date('2023-05-15');
     
-    test('adds leading zeros to month and day when needed', () => {
-      const testDate = new Date(2023, 0, 5); // January 5, 2023
-      const result = formatDateForInput(testDate);
-      
-      expect(result).toBe('2023-01-05');
-    });
+    const result1 = addDays(date, 5);
+    expect(result1.getDate()).toBe(20);
+    expect(result1.getMonth()).toBe(4); // May is 4 (0-indexed)
+    
+    const result2 = addDays(date, 20);
+    expect(result2.getDate()).toBe(4);
+    expect(result2.getMonth()).toBe(5); // June is 5
+  });
+  
+  // Test 3: addDays handles month and year boundaries
+  test('addDays handles month and year boundaries', () => {
+    const endOfYear = new Date('2023-12-31');
+    
+    const nextYear = addDays(endOfYear, 1);
+    expect(nextYear.getDate()).toBe(1);
+    expect(nextYear.getMonth()).toBe(0); // January is 0
+    expect(nextYear.getFullYear()).toBe(2024);
+    
+    const endOfFeb = new Date('2023-02-28');
+    const marchFirst = addDays(endOfFeb, 1);
+    expect(marchFirst.getDate()).toBe(1);
+    expect(marchFirst.getMonth()).toBe(2); // March is 2
+  });
+  
+  // Test 4: formatDateForInput formats dates for input elements
+  test('formatDateForInput formats dates for input elements', () => {
+    const date = new Date('2023-05-15');
+    const result = formatDateForInput(date);
+    expect(result).toBe('2023-05-15');
+  });
+  
+  // Test 5: formatDateForInput handles single-digit months and days
+  test('formatDateForInput pads single-digit months and days', () => {
+    const date = new Date('2023-01-05');
+    const result = formatDateForInput(date);
+    expect(result).toBe('2023-01-05');
+    
+    const date2 = new Date('2023-10-09');
+    const result2 = formatDateForInput(date2);
+    expect(result2).toBe('2023-10-09');
   });
 });

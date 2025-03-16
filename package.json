@@ -5,9 +5,6 @@
   "dependencies": {
     "@reduxjs/toolkit": "^2.6.0",
     "@testing-library/dom": "^10.4.0",
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.2.0",
-    "@testing-library/user-event": "^13.5.0",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
@@ -29,8 +26,8 @@
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom",
-    "test:coverage": "react-scripts test --env=jsdom --coverage",
+    "test": "react-scripts test --watchAll=false --coverage",
+    "test:watch": "react-scripts test",
     "eject": "react-scripts eject"
   },
   "jest": {
@@ -67,7 +64,13 @@
     ]
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.2.0",
+    "@testing-library/user-event": "^14.6.1",
     "autoprefixer": "^10.4.14",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^29.7.0",
+    "msw": "^2.7.3",
     "postcss": "^8.4.21",
     "tailwindcss": "^3.2.7"
   }
