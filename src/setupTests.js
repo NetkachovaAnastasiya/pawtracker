@@ -1,41 +1,25 @@
-// src/setupTests.js
-// jest-dom adds custom jest matchers for asserting on DOM nodes.
+import { TextEncoder, TextDecoder } from 'util';
+global.TextEncoder = TextEncoder;
+global.TextDecoder = TextDecoder;
+
 import '@testing-library/jest-dom';
+const mockLocalStorage = {
+  getItem: jest.fn(),
+  setItem: jest.fn(),
+  removeItem: jest.fn(),
+  clear: jest.fn()
+};
 
-// Mock localStorage
-class LocalStorageMock {
-  constructor() {
-    this.store = {};
-  }
+global.BroadcastChannel = class {
+  postMessage() {}
+  addEventListener() {}
+  removeEventListener() {}
+  close() {}
+};
 
-  clear() {
-    this.store = {};
-  }
+afterEach(() => {
+  jest.clearAllMocks();
+});
 
-  getItem(key) {
-    return this.store[key] || null;
-  }
+Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
 
-  setItem(key, value) {
-    this.store[key] = String(value);
-  }
-
-  removeItem(key) {
-    delete this.store[key];
-  }
-}
-
-global.localStorage = new LocalStorageMock();
-
-// Mock i18next
-jest.mock('react-i18next', () => ({
-  useTranslation: () => {
-    return {
-      t: (key) => key,
-      i18n: {
-        changeLanguage: jest.fn(),
-        language: 'en'
-      }
-    };
-  }
-}));

@@ -6,7 +6,6 @@ import FoodCalculator from '../../../components/pages/FoodCalculator';
 import { AppContext } from '../../../context/AppContext';
 import { DataContext } from '../../../context/DataContext';
 import { generateDog } from '../../mocks/dataGenerators';
-import { server } from '../../mocks/serviceMocks';
 import * as aiUtils from '../../../utils/aiUtils';
 
 // Mock AI utils module
@@ -14,12 +13,12 @@ jest.mock('../../../utils/aiUtils', () => ({
   getDogRecommendations: jest.fn()
 }));
 
-// Setup mock server
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
-
 describe('FoodCalculator Component', () => {
+  // Reset mocks after each test
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   const mockAppContextValue = {
     darkMode: false,
     language: 'en'
@@ -144,11 +143,13 @@ describe('FoodCalculator Component', () => {
     // Click AI recommendations button
     fireEvent.click(screen.getByText(/Get AI Recommendations/i));
     
-    // Wait for recommendations to load
+    // Wait for recommendations header to appear
     await waitFor(() => {
       expect(screen.getByText(/AI Care Recommendations/i)).toBeInTheDocument();
-      expect(screen.getByText(/Water intake/i)).toBeInTheDocument();
     });
+    
+    // Now check for specific content after the wait
+    expect(screen.getByText(/Water intake/i)).toBeInTheDocument();
     
     // Verify AI function was called with correct parameters
     expect(aiUtils.getDogRecommendations).toHaveBeenCalledWith(
